@@ -1,0 +1,51 @@
+---
+title: "THESIS Luis Celi"
+output: html_document
+date: "2024-12-03"
+---
+
+
+```{r}
+library(tidyverse)
+library(eurostat)
+library(ggplot2)
+library(regions)
+```
+## Load code for EU countries
+```{r}
+region_eu <- eu_countries %>% 
+  mutate(geo = code) %>% 
+  select(geo)
+```
+## Load data
+```{r}
+data_salary <- get_eurostat('earn_ses18_13', time = 'num')
+```
+```{r}
+head(data_salary)
+```
+```{r}
+typeof(data_salary)
+```
+
+```{r}
+names(data_salary)
+```
+
+```{r}
+  unique(data_salary$geo)
+```
+```{r}
+unique(data_salary$sex)
+```
+```{r}
+unique(data_salary$age)
+```
+
+```{r}
+unique(data_salary$freq)
+```
+```{r}
+unique(data_salary$nace_r2)
+```
+
