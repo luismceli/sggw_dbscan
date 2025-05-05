@@ -396,7 +396,7 @@ union_df <- union_df2 %>% select(-geo)
 
 geo_info <- union_df2$geo
 
-rm(list_tables, wage_h, popul, emplyr, unemplyr, ftpt, activ, edu, gdp, htec_gap, poverty, hrst)
+rm(list_tables, wage_h, popul, emplyr, unemplyr, ftpt, activ, edu, gdp, poverty, hrst)
 ```
 
 ```{r}
@@ -410,10 +410,10 @@ names(df_scaled)
 
 
 ```{r}
-vars_importantes <- select(df_scaled, c(gpg, OLDDEP1, emplygap, UMPLR, pt_f, f_inactiv, gedup_h, gdp_eur, gdp_pps, htec_F , poverty)) %>%
+vars_importantes <- select(df_scaled, c( gpg, OLDDEP3, pt_m, f_inactiv, gedup_h, gdp_pps)) %>%
   names()
 df_scaled_var1 <- df_scaled %>% select(vars_importantes)
-rm (vars_importantes, df_scaled)
+rm (df_scaled)
 ```
 
 
@@ -434,9 +434,9 @@ rm (cor_matrix, cor_con_gpg, cor_con_gpg_ordenado)
 ```
 
 ```{r}
-# Eliminar variables con baja correlación
-df_scaled_var1 <- df_scaled_var1 %>%
-  select(-c( gpg ))
+# Eliminar variable gpg
+#df_scaled_var1 <- df_scaled_var1 %>%
+ # select(-c( gpg ))
 ```
 
 
@@ -451,18 +451,10 @@ summary(pca)
 fviz_eig(pca, addlabels = TRUE, ylim = c(0, 50)) +
   labs(title = "PCA - Eigenvalues")
 ```
-#graficar entre el primer y segundo componete su relacion 
-
-```{r}
-fviz_pca_var(pca, col.var = "contrib", gradient.cols = c("blue", "red"), repel = TRUE) +
-  labs(title = "PCA - Variables")
-```
-
-
 
 
 ```{r}
-eps_values <- seq(1.4, 5, by = 0.1)
+eps_values <- seq(1 , 2, by = 0.1)
 results <- data.frame(eps = numeric(), clusters = integer(), outliers = integer(), silhouette = numeric())
 
 for (e in eps_values) {
@@ -487,7 +479,7 @@ rm(results)
 
 
 ```{r}
-modelo <- dbscan(df_scaled_var1, eps= 2.0 , minPts = 4)
+modelo <- dbscan(df_scaled_var1, eps= 1.7 , minPts = 4)
 
 fviz_cluster(modelo, data = df_scaled_var1, stand = FALSE, geom = "point")
 ```
@@ -629,12 +621,24 @@ print(paste("DB index for K-means:", db_index_kmeans))
 ```
 
 ```{r}
-df_kmeans_final <- merge(df_cluster_kmeans, df_gpg, by = "geo")
-df_dbscan_final <- merge(df_cluster_dbscan, df_gpg, by = "geo")
+df_gpg <- data.frame(geo = geo_info, gpg = union_df2$gpg)
+# Merge con los datos de GPG
+
+df_kmeans_final <- merge(df_clustered_kmeans, df_gpg, by = "geo")
+df_dbscan_final <- merge(df_clustered_dbscan, df_gpg, by = "geo")
 
 # Finalmente:
-aggregate(gpg ~ cluster_kmeans, data = df_kmeans_final, mean)
-aggregate(gpg ~ cluster_dbscan, data = df_dbscan_final, mean)
+# Calcular la media de gpg por cluster
+# K-means
+df_kmeans_final %>%
+  group_by(cluster) %>%
+  summarise(mean_gpg = mean(gpg, na.rm = TRUE)) -> resumen_kmeans
+# DBSCAN
+df_dbscan_final %>%
+  filter(cluster != 0) %>%  # opcional: quitar outliers
+  group_by(cluster) %>%
+  summarise(mean_gpg = mean(gpg, na.rm = TRUE)) -> resumen_dbscan
+
 ```
 ```{r}
 # Agregar clusters a los datos
@@ -657,9 +661,6 @@ df_macro_dbscan %>%
 ```
 
 ```{r}
-# Selección de variables macroeconómicas de interés
-vars_importantes <- select(union_df2, c(gpg, OLDDEP1, emplygap, UMPLR, pt_f, f_inactiv, gedup_h, gdp_eur, gdp_pps, htec_F , poverty)) %>%
-  names()
 
 # Agregar clusters a los datos reales (union_df2)
 df_real_kmeans <- data.frame(geo = geo_info, cluster_kmeans = kmeans_model$cluster)
