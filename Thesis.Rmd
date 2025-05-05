@@ -686,7 +686,7 @@ resumen_real_kmeans <- df_kmeans_real %>%
   summarise(across(where(is.numeric), mean, na.rm = TRUE))
 
 resumen_real_dbscan <- df_dbscan_real %>%
-  filter(cluster_dbscan != 0) %>%  # opcional: eliminar outliers
+  filter(cluster_dbscan != 0) %>%  # eliminar outliers
   group_by(cluster_dbscan) %>%
   summarise(across(where(is.numeric), mean, na.rm = TRUE))
 ```
