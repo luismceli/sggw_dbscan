@@ -396,7 +396,15 @@ union_df <- union_df2 %>% select(-geo)
 
 geo_info <- union_df2$geo
 
+vars_importantes <- select(union_df, c( gpg, OLDDEP3, pt_m, f_inactiv, gedup_h, gdp_pps)) %>%
+  names()
+df_data <- union_df %>% select(vars_importantes)
+
+psych::describe(df_data)
+
 rm(list_tables, wage_h, popul, emplyr, unemplyr, ftpt, activ, edu, gdp, poverty, hrst)
+
+
 ```
 
 ```{r}
@@ -414,6 +422,32 @@ vars_importantes <- select(df_scaled, c( gpg, OLDDEP3, pt_m, f_inactiv, gedup_h,
   names()
 df_scaled_var1 <- df_scaled %>% select(vars_importantes)
 rm (df_scaled)
+
+```
+
+```{r}
+# guarda todos los histogramas y boxplots en una carpeta con los nombres de las variables
+
+# Cambia el directorio a la carpeta donde quieres guardar los gráficos
+
+setwd("/Users/luisceli/Library/CloudStorage/OneDrive-Personal/Master Big Data/Tesis/Thesis/figuras")
+# Crea los histogramas y boxplots para cada variable
+for (var in vars_importantes) {
+  p1 <- ggplot(df_scaled_var1, aes_string(x = var)) +
+    geom_histogram(bins = 30, fill = "blue", alpha = 0.7) +
+    labs(title = paste("Histogram of", var), x = var, y = "Frequency") +
+    theme_minimal()
+  
+  p2 <- ggplot(df_scaled_var1, aes_string(y = var)) +
+    geom_boxplot(fill = "red", alpha = 0.7) +
+    labs(title = paste("Boxplot of", var), y = var) +
+    theme_minimal()
+  
+  ggsave(paste0(var, "_histogram.png"), plot = p1)
+  ggsave(paste0(var, "_boxplot.png"), plot = p2)
+}
+
+
 ```
 
 
@@ -430,13 +464,27 @@ cor_con_gpg_ordenado <- sort(cor_con_gpg, decreasing = TRUE)
 # Muestra los resultados
 print(cor_con_gpg_ordenado)
 
+# Crear un heatmap de la matriz de correlación
+library(ggcorrplot)
+ggcorrplot(cor_matrix, 
+           method = "circle", 
+           type = "lower", 
+           lab = TRUE, 
+           title = "Correlation Matrix Heatmap",
+           colors = c("blue", "white", "red"),
+           tl.cex = 10,
+           tl.col = "black") +
+  theme_minimal()
+
+# Guardar la imagen en la carpeta
+setwd("/Users/luisceli/Library/CloudStorage/OneDrive-Personal/Master Big Data/Tesis/Thesis/figuras")
+ggsave("correlation_matrix_heatmap.png", width = 10, height = 8)
+
 rm (cor_matrix, cor_con_gpg, cor_con_gpg_ordenado)
 ```
 
 ```{r}
-# Eliminar variable gpg
-#df_scaled_var1 <- df_scaled_var1 %>%
- # select(-c( gpg ))
+
 ```
 
 
@@ -450,6 +498,7 @@ summary(pca)
 ```{r}
 fviz_eig(pca, addlabels = TRUE, ylim = c(0, 50)) +
   labs(title = "PCA - Eigenvalues")
+
 ```
 
 
@@ -482,6 +531,24 @@ rm(results)
 modelo <- dbscan(df_scaled_var1, eps= 1.7 , minPts = 4)
 
 fviz_cluster(modelo, data = df_scaled_var1, stand = FALSE, geom = "point")
+```
+```{r}
+library(plotly)
+
+# Agregamos los clusters al dataset
+df_scaled_var1$cluster <- as.factor(modelo$cluster)
+
+# Gráfico 3D usando plotly (elige las columnas 1, 2 y 3 por ejemplo)
+fig <- plot_ly(df_scaled_var1, 
+               x = ~df_scaled_var1[,1], 
+               y = ~df_scaled_var1[,2], 
+               z = ~df_scaled_var1[,3], 
+               color = ~cluster, 
+               colors = "Set1",
+               type = "scatter3d", 
+               mode = "markers") 
+
+fig
 ```
 
 
@@ -539,9 +606,28 @@ fviz_nbclust(df_scaled_var1, kmeans, method = "silhouette") +
 
 # algorit K-means
 ```{r}
+df_scaled_var1 <- df_scaled_var1 %>% select(-cluster)
 kmeans_model <- kmeans(df_scaled_var1, centers = 2, nstart = 25)
 fviz_cluster(kmeans_model, data = df_scaled_var1, stand = FALSE, geom = "point")
 ```
+
+```{r}
+# Agrega los clusters al dataframe
+df_scaled_var1$cluster <- as.factor(kmeans_model$cluster)
+
+# Gráfico 3D (ajusta las columnas si quieres usar otras dimensiones)
+fig <- plot_ly(df_scaled_var1,
+               x = ~df_scaled_var1[,1],
+               y = ~df_scaled_var1[,2],
+               z = ~df_scaled_var1[,3],
+               color = ~cluster,
+               colors = "Set1",
+               type = "scatter3d",
+               mode = "markers")
+
+fig
+```
+
 
 # Unir el mapa con los datos de clusters
 ```{r}
@@ -573,6 +659,8 @@ Evaluate DBscan Vs Kmeans with CHI
 library(clusterCrit)
 library(factoextra)
 library(cluster)
+
+df_scaled_var1 <- df_scaled_var1 %>% select(-cluster)
 
 # Create a function to calculate the CH index
 calculate_ch_index <- function(data, clustering) {
@@ -696,6 +784,24 @@ resumen_real_dbscan <- df_dbscan_real %>%
 View(resumen_real_kmeans)
 View(resumen_real_dbscan)
 ```
+
+```{r}
+# describe de df_dbscan_real agrupado por cluster 
+library(psych)
+describeBy(df_dbscan_real, group = df_dbscan_real$cluster_dbscan)
+
+
+
+```
+
+
+
+```{r}
+# export en csv df_dbscan_real
+write.csv(df_dbscan_real, "df_dbscan_real.csv", row.names = FALSE)
+```
+
+
 
 ```{r}
 knitr::purl("Thesis.Rmd")
