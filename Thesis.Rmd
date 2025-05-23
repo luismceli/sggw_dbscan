@@ -546,7 +546,15 @@ fig <- plot_ly(df_scaled_var1,
                color = ~cluster, 
                colors = "Set1",
                type = "scatter3d", 
-               mode = "markers") 
+               mode = "markers") %>%
+  layout(
+    title = "3D PCA Cluster Visualization",
+    scene = list(
+      xaxis = list(title = "Principal Component 1"),
+      yaxis = list(title = "Principal Component 2"),
+      zaxis = list(title = "Principal Component 3")
+    )
+  )
 
 fig
 ```
@@ -562,6 +570,14 @@ table(modelo$cluster)
 df_clustered_dbscan <- data.frame(geo = geo_info, cluster = modelo$cluster)
 ```
 
+```{r}
+# Gráfico de Silhouette para DBSCAN
+sil <- silhouette(modelo$cluster, dist(df_scaled_var1))
+
+# Visualiza silhouette
+fviz_silhouette(sil)
+
+```
 
 
 ```{r}
