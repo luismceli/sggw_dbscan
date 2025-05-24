@@ -5,6 +5,7 @@ date: "2024-12-03"
 ---
 
 ```{r}
+#Cargar Librerias
 library(tidyverse)
 library(dplyr)
 library(regions)
