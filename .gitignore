@@ -1,0 +1,12 @@
+# Ignorar archivos y carpetas de RStudio
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignorar todos los archivos .docx y .csv en cualquier carpeta
+*.docx
+*.csv
+
+# Ignorar archivos ocultos de macOS
+.DS_Store
