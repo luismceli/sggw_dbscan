@@ -784,6 +784,8 @@ df_dbscan_real <- df_dbscan_real %>%
 ```
 
 ```{r}
+# Resumen de las variables por cluster para K-means
+
 library(dplyr)
 
 resumen_real_kmeans <- df_kmeans_real %>%
