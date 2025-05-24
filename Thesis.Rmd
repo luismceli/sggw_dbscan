@@ -805,9 +805,6 @@ View(resumen_real_dbscan)
 # describe de df_dbscan_real agrupado por cluster 
 library(psych)
 describeBy(df_dbscan_real, group = df_dbscan_real$cluster_dbscan)
-
-
-
 ```
 
 
