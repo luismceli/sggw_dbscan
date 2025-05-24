@@ -59,6 +59,7 @@ regiony2 <- regiony2 %>%
 Import of wage data from Eurostat (SES 2022) and transformation to GPG
 
 ```{r}
+# Import of wage data from Eurostat (SES 2022) and transformation to GPG
 wage_h <- get_eurostat("earn_ses22_rhr", time = "num")
 ```
 
