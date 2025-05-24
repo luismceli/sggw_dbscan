@@ -787,7 +787,6 @@ df_dbscan_real <- df_dbscan_real %>%
 # Resumen de las variables por cluster para K-means
 
 library(dplyr)
-
 resumen_real_kmeans <- df_kmeans_real %>%
   group_by(cluster_kmeans) %>%
   summarise(across(where(is.numeric), mean, na.rm = TRUE))
@@ -800,6 +799,7 @@ resumen_real_dbscan <- df_dbscan_real %>%
 
 
 ```{r}
+# Resumen de las variables por cluster para DBSCAN
 View(resumen_real_kmeans)
 View(resumen_real_dbscan)
 ```
