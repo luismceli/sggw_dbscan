@@ -819,7 +819,4 @@ write.csv(df_dbscan_real, "df_dbscan_real.csv", row.names = FALSE)
 
 
 
-```{r}
-knitr::purl("Thesis.Rmd")
-```
 
