@@ -61,22 +61,16 @@ Import of wage data from Eurostat (SES 2022) and transformation to GPG
 ```{r}
 # Import of wage data from Eurostat (SES 2022) and transformation to GPG
 wage_h <- get_eurostat("earn_ses22_rhr", time = "num")
-```
 
-```{r}
 unique(wage_h$TIME_PERIOD)
-```
 
-```{r}
 wage_h2 <- inner_join(wage_h, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
   filter(unit == "EUR") %>%
   filter(!sex =="T") %>%
   select(geo, time, sex, values)
-```
 
-```{r}
 wage_h <- wage_h2 %>%
   pivot_wider(names_from = sex, values_from = values) %>%
   mutate(gpg = ((M-F)/M)*100) %>%                  #calculation of the gender employment gap
@@ -84,28 +78,18 @@ wage_h <- wage_h2 %>%
   select(geo, gpg)
 
 rm(wage_h2) #remove the auxiliary data frame
+
 ```
 
 Demographic variables
 
 ```{r}
 popul <- get_eurostat("demo_r_pjanind2", time = "num") 
-names(popul)
-unique(popul$indic_de)
-unique(popul$TIME_PERIOD)
-unique(popul$freq)
-unique(popul$unit)
-```
-
-```{r}
 popul2 <- inner_join(popul, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
   filter(unit == "PC") %>%
   select(geo, time, indic_de, values)
-```
-
-```{r}
 popul <- popul2 %>%
     pivot_wider(names_from = indic_de, values_from = values) %>%
     select(geo, DEPRATIO1, DEPRATIO3, OLDDEP1, OLDDEP3, YOUNGDEP1, YOUNGDEP3)
@@ -120,19 +104,14 @@ Employment rates by sex, age and NUTS 2 region (%)
 ```{r}
 emplyr <- get_eurostat("lfst_r_lfe2emprt", time = "num")
 unique(emplyr$unit)
-```
 
-```{r}
 emplyr2 <- inner_join(emplyr, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
   filter(age == "Y20-64") %>%
   filter(!sex == "T") %>%
   select(geo, time, sex, age, values)
-```
 
-
-```{r}
 emplyr <- emplyr2 %>%
   pivot_wider(names_from= sex, values_from = values) %>%
   select(geo, M, F) %>%
@@ -150,8 +129,7 @@ Unemployment rates by sex, age, educational attainment level and NUTS 2 region (
 ```{r}
 unemplyr <- get_eurostat("lfst_r_lfu3rt", time = "num")
 unique(unemplyr$isced11)
-```
-```{r}
+
 unemplyr <- inner_join(unemplyr, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -166,10 +144,7 @@ Full-time and part-time work in macroregions
 
 ```{r}
 ftpt <- get_eurostat("lfst_r_lfe2eftpt", time = "num") 
-```
 
-
-```{r}
 ftpt2 <- inner_join(ftpt, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -177,9 +152,6 @@ ftpt2 <- inner_join(ftpt, regiony2) %>%  #merge the preliminary data frame with 
   filter(age == "Y20-64") %>%
   select(geo, time, worktime, wstatus, age, sex, values)
 
-```
-
-```{r}
 ftpt <- ftpt2 %>%
   pivot_wider(names_from = worktime, values_from = values) %>%
   select (geo, time, wstatus, age, sex, FT, PT, TOTAL) %>%
@@ -200,8 +172,7 @@ Activity and InActivity rate in macroregions
 
 ```{r}
 activ <- get_eurostat("lfst_r_lfp2actrtn", time = "num")
-```
-```{r}
+
 activ2 <- inner_join(activ, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -210,9 +181,6 @@ activ2 <- inner_join(activ, regiony2) %>%  #merge the preliminary data frame wit
   filter(citizen == "TOTAL") %>%
   select(geo, time, sex, values)
 
-```
-
-```{r}
 activ <- activ2 %>%
   pivot_wider(names_from = sex, values_from = values) %>%
   mutate(geg = (M-F)) %>%                                 #calculation of the gender employment gap
@@ -233,8 +201,7 @@ Education
 
 ```{r}
 edu <- get_eurostat("edat_lfse_04", time = "num") 
-```
-```{r}
+
 edu2 <- inner_join(edu, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -251,16 +218,10 @@ edu2 <- inner_join(edu, regiony2) %>%  #merge the preliminary data frame with se
           ) %>%
     select(geo, time,age, sex, edu_level, values)
 
-```
-
-```{r}
 edu3 <- edu2 %>%
   pivot_wider(names_from = edu_level, values_from = values) %>%
     select(geo, sex, L, M, H)
-```
 
-
-```{r}
 edu3L <- edu3 %>%
     select(geo, sex, L) %>%
     pivot_wider(names_from = sex, values_from = L) %>%
@@ -270,10 +231,6 @@ edu3L <- edu3 %>%
     mutate(ML = M) %>%
     select(geo, TL, FL, ML)
 
-```
-
-
-```{r}
 edu3M <- edu3 %>%
     select(geo, sex, M) %>%
     pivot_wider(names_from = sex, values_from = M) %>%
@@ -283,9 +240,7 @@ edu3M <- edu3 %>%
     mutate(MM = M) %>%
     select(geo, TM, FM, MM)
 
-```
 
-```{r}
 edu3H <- edu3 %>%
     select(geo, sex, H) %>%
     pivot_wider(names_from = sex, values_from = H) %>%
@@ -295,20 +250,13 @@ edu3H <- edu3 %>%
     mutate(MH = M) %>%
     select(geo, TH, FH, MH)
 
-```
-
-```{r}
 edu3 <- inner_join(edu3L, edu3M)
-```
 
-```{r}
 edu <- inner_join(edu3, edu3H) %>%
   mutate(gedup_l = ML-FL) %>%
   mutate(gedup_m = MM-FM) %>%
   mutate(gedup_h = MH-FH) 
-```
 
-```{r}
 edu <- inner_join(edu3, edu3H) %>%
   mutate(gedup_l = ML-FL) %>%
   mutate(gedup_m = MM-FM) %>%
@@ -325,10 +273,7 @@ Gross domestic product (GDP) per inhabitatnt
 
 ```{r}
 gdp <- get_eurostat("nama_10r_2gdp", time = "num") 
-names(gdp)
-unique(gdp$unit)
-```
-```{r}
+
 gdp2 <- inner_join(gdp, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -337,13 +282,10 @@ gdp2 <- inner_join(gdp, regiony2) %>%  #merge the preliminary data frame with se
   mutate(gdp_eur = EUR_HAB) %>%
   mutate(gdp_pps = PPS_EU27_2020_HAB) %>%
   select(geo, gdp_eur, gdp_pps)
-```
 
-```{r}
 gdp <- gdp2
 rm(gdp2)
 ```
-
 
 Human Resources in Science & Technology
 
@@ -352,9 +294,7 @@ hrst <- get_eurostat("hrst_st_rsex", time = "num")
 colnames(hrst)
 unique(hrst$category)
 unique(hrst$unit)
-```
 
-```{r}
 hrst2 <- inner_join(hrst, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -368,9 +308,6 @@ hrst2 <- inner_join(hrst, regiony2) %>%  #merge the preliminary data frame with 
   mutate(htec_gap = htec_M - htec_F) %>%
   select(geo, htec_T , htec_F, htec_M , htec_gap)
 
-```
-
-```{r}
 hrst <- hrst2 
 rm(hrst2)
 ```
@@ -379,8 +316,7 @@ Poverty
 
 ```{r}
 poverty <- get_eurostat("ilc_li41", time = "num")
-```
-```{r}
+
 poverty <- inner_join(poverty, regiony2) %>%  #merge the preliminary data frame with selected regions 
   mutate(time = TIME_PERIOD) %>%
   filter(time == 2022) %>%
@@ -412,14 +348,9 @@ rm(list_tables, wage_h, popul, emplyr, unemplyr, ftpt, activ, edu, gdp, poverty,
 ```{r}
 pre_proc <- preProcess(union_df , method = c("medianImpute", "center", "scale"))
 df_scaled <- predict(pre_proc, newdata = union_df)
-```
 
-```{r}
 names(df_scaled)
-```
 
-
-```{r}
 vars_importantes <- select(df_scaled, c( gpg, OLDDEP3, pt_m, f_inactiv, gedup_h, gdp_pps)) %>%
   names()
 df_scaled_var1 <- df_scaled %>% select(vars_importantes)
@@ -448,7 +379,6 @@ for (var in vars_importantes) {
   ggsave(paste0(var, "_histogram.png"), plot = p1)
   ggsave(paste0(var, "_boxplot.png"), plot = p2)
 }
-
 
 ```
 
@@ -483,10 +413,6 @@ setwd("/Users/luisceli/Library/CloudStorage/OneDrive-Personal/Master Big Data/Te
 ggsave("correlation_matrix_heatmap.png", width = 10, height = 8)
 
 rm (cor_matrix, cor_con_gpg, cor_con_gpg_ordenado)
-```
-
-```{r}
-
 ```
 
 
@@ -597,6 +523,7 @@ nuts1_map_clustered <- nuts1_map %>%
   left_join(df_clustered_dbscan, by = c("NUTS_ID" = "geo"))
 ```
 
+# Gráfico de clusters por región NUTS 1 en Europa
 
 ```{r}
 ggplot(nuts1_map_clustered) +
@@ -746,6 +673,8 @@ df_dbscan_final %>%
   summarise(mean_gpg = mean(gpg, na.rm = TRUE)) -> resumen_dbscan
 
 ```
+
+# Agregar clusters a los datos
 ```{r}
 # Agregar clusters a los datos
 df_macro_kmeans <- cbind(cluster = kmeans_model$cluster, df_scaled_var1)
@@ -767,7 +696,6 @@ df_macro_dbscan %>%
 ```
 
 ```{r}
-
 # Agregar clusters a los datos reales (union_df2)
 df_real_kmeans <- data.frame(geo = geo_info, cluster_kmeans = kmeans_model$cluster)
 df_real_dbscan <- data.frame(geo = geo_info, cluster_dbscan = modelo$cluster)
@@ -784,6 +712,7 @@ df_dbscan_real <- df_dbscan_real %>%
   select(geo, cluster_dbscan, all_of(vars_importantes))
 ```
 
+# Agregar clusters a los datos reales
 ```{r}
 # Resumen de las variables por cluster para K-means
 
@@ -806,12 +735,13 @@ View(resumen_real_dbscan)
 ```
 
 ```{r}
-# describe de df_dbscan_real agrupado por cluster 
-library(psych)
-describeBy(df_dbscan_real, group = df_dbscan_real$cluster_dbscan)
+# describe de df_dbscan_real agrupado por la columna cluster_dbscan
+df_dbscan_real %>%
+  group_by(cluster_dbscan) %>%
+  summarise(across(where(is.numeric), list(mean = mean, sd = sd, min = min, max = max), na.rm = TRUE)) -> resumen_stats_dbscan
+resumen_stats_dbscan
+
 ```
-
-
 
 ```{r}
 # export en csv df_dbscan_real
