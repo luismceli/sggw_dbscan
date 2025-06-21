@@ -368,7 +368,7 @@ setwd("/Users/luisceli/Library/CloudStorage/OneDrive-Personal/Master Big Data/Te
 for (var in vars_importantes) {
   p1 <- ggplot(df_scaled_var1, aes_string(x = var)) +
     geom_histogram(bins = 30, fill = "blue", alpha = 0.7) +
-    labs(title = paste("Histogram of", var), x = var, y = "Frequency") +
+   labs(title = paste("Histogram of", var), x = var, y = "Frequency") +
     theme_minimal()
   
   p2 <- ggplot(df_scaled_var1, aes_string(y = var)) +
